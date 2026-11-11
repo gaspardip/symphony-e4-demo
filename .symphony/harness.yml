@@ -1,0 +1,38 @@
+version: 1
+base_branch: main
+project:
+  type: python-lib
+preflight:
+  description: Check the Python toolchain.
+  command: [python3, --version]
+  success: {exit_code: 0}
+validation:
+  description: Run the unit test suite.
+  command: [./scripts/test.sh]
+  outputs: {format: text}
+  success: {exit_code: 0}
+smoke:
+  description: Run the unit test suite before publishing.
+  command: [./scripts/test.sh]
+  success: {exit_code: 0}
+post_merge:
+  description: Run the unit test suite on the base branch.
+  command: [./scripts/test.sh]
+  success: {exit_code: 0}
+artifacts:
+  description: Emit a JSON snapshot of the repo state.
+  command: [./scripts/artifacts.sh]
+  outputs: {format: json}
+  success: {exit_code: 0}
+verification:
+  behavioral_proof:
+    required: true
+    mode: unit_first
+    source_paths: [src/]
+    test_paths: [tests/]
+ci:
+  provider: github-actions
+  workflow: .github/workflows/ci.yml
+  required_checks: [test]
+pull_request:
+  required_checks: [test]
